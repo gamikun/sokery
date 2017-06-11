@@ -21,6 +21,15 @@
 	var fieldPort;
 	var divOutput;
 
+	function outputLine(text, color) {
+		var div = document.createElement('div');
+		div.innerHTML = text;
+		if (color) {
+			div.style.color = color;
+		}
+		divOutput.append(div);
+	}
+
 	window.onload = function() {
 		buttonListen = document.getElementById('listen');
 		fieldPort = document.getElementById('port');
@@ -30,10 +39,12 @@
 
 		socket.onmessage = function(message) {
 			data = JSON.parse(message.data);
-			if (data.op == 'recvd') {
-				var div = document.createElement('div');
-				div.innerHTML = data.data;
-				divOutput.append(div);
+			if (data.op === 'recvd') {
+				outputLine('[data] ' + data.data);
+			} else if (data.op === 'success') {
+				outputLine(data.message, '#009900');
+			} else if (data.op === 'error') {
+				outputLine(data.message, 'red');
 			}
 		}
 

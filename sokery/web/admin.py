@@ -26,7 +26,14 @@ class LiveHandler(WebSocketHandler):
                 server = TCPServer()
                 server.report_clients = self.settings['report_clients']
                 server.listen(port)
-                print('listening: {}'.format(port))
+                self.write_message(json.dumps({
+                    'op': 'success',
+                    'message': 'listening in port {}'.format(port)
+                    }))
             except Exception as ex:
+                self.write_message(json.dumps({
+                    'op': 'error',
+                    'message': str(ex)
+                    }))
                 print(ex)
 
