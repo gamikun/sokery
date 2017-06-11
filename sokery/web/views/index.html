@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Sokery test</title>
+</head>
+
+<body>
+	
+<div>
+	<div>Puerto</div>
+	<input type="text" value="" id="port">
+	<button type="button" id="listen">Listen</button>
+</div>
+
+<div id="output">
+</div>
+
+<script>
+	var socket;
+	var buttonListen;
+	var fieldPort;
+	var divOutput;
+
+	window.onload = function() {
+		buttonListen = document.getElementById('listen');
+		fieldPort = document.getElementById('port');
+		divOutput = document.getElementById('output');
+
+		socket = new WebSocket('ws://' + location.host + '/live');
+
+		socket.onmessage = function(message) {
+			data = JSON.parse(message.data);
+			if (data.op == 'recvd') {
+				var div = document.createElement('div');
+				div.innerHTML = data.data;
+				divOutput.append(div);
+			}
+		}
+
+		buttonListen.onclick = function() {
+			if (socket) {
+				socket.send(JSON.stringify({
+					op: 'listen',
+					port: parseInt(fieldPort.value)
+				}))
+			}
+		};
+	}
+</script>
+
+</body>
+</html>
