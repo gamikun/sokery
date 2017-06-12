@@ -14,6 +14,14 @@ class TCPServer(tornado.tcpserver.TCPServer):
     def handle_stream(self, stream, address):
         print('connection from {}'.format(address))
 
+        pkg = json.dumps({
+            'op': 'newclient',
+            'address': str(address),
+            })
+
+        for client in self.report_clients:
+            client.write_message(pkg)
+
         while True:
             try:
                 data = yield stream.read_bytes(4096, partial=True)
@@ -22,6 +30,10 @@ class TCPServer(tornado.tcpserver.TCPServer):
                     'is_binary': False,
                     'data': data
                 })
+
+                if self.echo_all:
+                    yield stream.write(data)
+
                 for client in self.report_clients:
                     client.write_message(pkg)
 
