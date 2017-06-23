@@ -10,13 +10,17 @@ class TCPServer(tornado.tcpserver.TCPServer):
         super(TCPServer, self).__init__(*args, **kwargs)
         self.report_clients = None
 
+    def listen(self, port):
+        self.port = port
+        super(TCPServer, self).listen(port)
+
     @tornado.gen.coroutine
     def handle_stream(self, stream, address):
         print('connection from {}'.format(address))
 
         pkg = json.dumps({
             'op': 'newclient',
-            'address': str(address),
+            'from': address + (self.port, ),
             })
 
         for client in self.report_clients:
@@ -28,7 +32,8 @@ class TCPServer(tornado.tcpserver.TCPServer):
                 pkg = json.dumps({
                     'op': 'recvd',
                     'is_binary': False,
-                    'data': data
+                    'data': data,
+                    'from': address + (self.port, )
                 })
 
                 if self.echo_all:
@@ -38,5 +43,11 @@ class TCPServer(tornado.tcpserver.TCPServer):
                     client.write_message(pkg)
 
             except StreamClosedError:
-                print("fuck")
+                host, socket = address
+                pkg = json.dumps({
+                    'op': 'connection_closed',
+                    'from': address + (self.port, )
+                })
+                for client in self.report_clients:
+                    client.write_message(pkg)
                 break

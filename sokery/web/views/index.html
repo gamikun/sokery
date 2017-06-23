@@ -3,10 +3,47 @@
 <head>
 	<title>Sokery test</title>
 </head>
-
+<style type="text/css">
+	body {
+		padding: 0;
+		margin: 0;
+		font-family: "Courier New";
+		font-size: 14px;
+		background: #222;
+		color: #c0c0c0;
+	}
+	input[type=text] {
+		padding: 5px;
+		background: #222;
+		border: solid 1px #555;
+		color: #eee;
+	}
+	button {
+		background: #99cc00;
+		border: none;
+		font-size: 14px;
+	}
+	#panel {
+		padding: 10px;
+		position: fixed;
+		top: 0;
+		height: 50px;
+		background: #333;
+		width: 100%;
+	}
+	#output {
+		margin-top: 70px;
+	}
+	.output {
+		padding: 4px 10px;
+	}
+	.output:nth-child(odd) {
+		background: #151515;
+	}
+</style>
 <body>
 	
-<div>
+<div id="panel">
 	<div>Puerto</div>
 	<input type="text" value="" id="port">
 	<label>
@@ -29,11 +66,12 @@
 
 	function outputLine(text, color) {
 		var div = document.createElement('div');
+		div.className = 'output';
 		div.innerHTML = text;
 		if (color) {
 			div.style.color = color;
 		}
-		divOutput.append(div);
+		divOutput.insertBefore(div, divOutput.childNodes[0]);
 	}
 
 	window.onload = function() {
@@ -46,14 +84,30 @@
 
 		socket.onmessage = function(message) {
 			data = JSON.parse(message.data);
+			
+
 			if (data.op === 'recvd') {
-				outputLine('[data] ' + data.data);
+				var host = data.from[0];
+				var port = data.from[1];
+				var originalPort = data.from[2];
+
+				outputLine('['+host+':'+port+'/'+originalPort+'] ' + data.data);
 			} else if (data.op === 'success') {
-				outputLine(data.message, '#009900');
+				outputLine(data.message, '#99ff99');
 			} else if (data.op === 'error') {
-				outputLine(data.message, 'red');
+				outputLine(data.message, '#ff9999');
 			} else if (data.op === 'newclient') {
-				outputLine('[' + data.address + '] connected', 'blue');
+				var host = data.from[0];
+				var port = data.from[1];
+				var originalPort = data.from[2];
+				outputLine('['+host+':'+port+'/'+originalPort+'] connected',
+						   '#9999ff');
+			} else if (data.op === 'connection_closed') {
+				var host = data.from[0];
+				var port = data.from[1];
+				var originalPort = data.from[2];
+				outputLine('['+host+':'+port+'/'+originalPort+'] connection closed',
+						   '#ffee99');
 			}
 			console.log(data);
 		}

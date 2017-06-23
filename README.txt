@@ -1,4 +1,11 @@
-CHANGEL
+CHANGELOG
+
+Version 0.1.5 (June 23th 2017)
+=============
+- New built and standallone sender client. (python -m sokery.client)
+- Dark interface.
+- Nicer coloring for texts.
+- Added origin to packages received.
 
 Version 0.1.3 (June 12th 2017)
 =============
