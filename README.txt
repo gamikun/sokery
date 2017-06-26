@@ -1,5 +1,9 @@
 CHANGELOG
 
+Version 0.1.6 (June 26th 2017)
+=============
+- New flag for the client test, which indicates that a break line will be added after the payload. (--br).
+
 Version 0.1.5 (June 23th 2017)
 =============
 - New built and standallone sender client. (python -m sokery.client)
