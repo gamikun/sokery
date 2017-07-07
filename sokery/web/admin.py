@@ -22,30 +22,10 @@ class LiveHandler(WebSocketHandler):
         if op == 'listen':
             port = data['port']
             options = data.get('options', None)
+            self.application.open_port(port, options=options)
 
-            try:
-                server = TCPServer()
+        elif op == 'unlisten':
+            port = data['port']
+            self.application.close_port(port)
 
-                if options:
-                    server.echo_all = bool(options.get('echo_all', None))
-                    print("echo all: {}".format(server.echo_all))
-
-                server.report_clients = self.settings['report_clients']
-                server.listen(port)
-
-                msg = 'listening in port {}'.format(port)
-                if server.echo_all:
-                    msg += ' (echo server)'
-
-                self.write_message(json.dumps({
-                    'op': 'success',
-                    'message': msg 
-                    }))
-
-            except Exception as ex:
-                self.write_message(json.dumps({
-                    'op': 'error',
-                    'message': str(ex)
-                    }))
-                print(ex)
 
