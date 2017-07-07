@@ -12,6 +12,7 @@ class TCPServer(tornado.tcpserver.TCPServer):
 
     def listen(self, port):
         self.port = port
+        self.echo_all = False
         super(TCPServer, self).listen(port)
 
     @tornado.gen.coroutine
