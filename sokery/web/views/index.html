@@ -40,6 +40,14 @@
 	.output:nth-child(odd) {
 		background: #151515;
 	}
+	span.line-break {
+		background: #444;
+		color: #fff;
+		padding: 0 4px;
+		margin: 0 3px;
+		border-radius: 1px;
+		font-weight: bold;
+	}
 </style>
 <body>
 	
@@ -90,8 +98,18 @@
 				var host = data.from[0];
 				var port = data.from[1];
 				var originalPort = data.from[2];
+				var outData;
+				var lastChar = data.data.substring(0, data.data.length - 1);
 
-				outputLine('['+host+':'+port+'/'+originalPort+'] ' + data.data);
+				if (data.data.indexOf('\n') != -1) {
+					outData = data.data.replace(
+						/\n/g,
+						'<span class="line-break">\\n</span>'
+					);
+				} else {
+					outData = data.data;
+				}
+				outputLine('['+host+':'+port+'/'+originalPort+'] ' + outData);
 			} else if (data.op === 'success') {
 				outputLine(data.message, '#99ff99');
 			} else if (data.op === 'error') {
