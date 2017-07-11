@@ -4,7 +4,7 @@ import sokery
 setup(
   name = 'sokery',
   packages = ['sokery', 'sokery.web'],  
-  long_description=open('README.txt').read(),
+  long_description=open('README.md').read(),
   version = sokery.__version__,
   description = 'Socket testing with web interface',
   install_requires=['tornado'],
