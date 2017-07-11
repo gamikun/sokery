@@ -1,5 +1,11 @@
 CHANGELOG
 
+Version 0.1.6 (July 6th, 2017)
+=============
+- New preloaded ports from args (eg. -l 3123,9123).
+- Line breaks are highlighted in packaged received.
+- Admin error are propagated to every report client.
+
 Version 0.1.5 (June 23th 2017)
 =============
 - New built and standallone sender client. (python -m sokery.client)
