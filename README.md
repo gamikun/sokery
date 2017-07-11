@@ -3,7 +3,7 @@
 ## Version 0.1.8 (July 6th, 2017)
 * New preloaded ports from args (eg. -l 3123,9123).
 
-## Version 0.1.6 (July 6th, 2017)
+## Version 0.1.6 (July 6th, 2017)
 * Line breaks are highlighted in packaged received.
 * Admin error are propagated to every report client.
 * New flag for the client test, which indicates that a break line will be added after the payload. (--br).
