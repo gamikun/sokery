@@ -40,6 +40,11 @@
 	.output:nth-child(odd) {
 		background: #151515;
 	}
+	.output .proxied {
+		float: right;
+		color: #777;
+		font-size: 10px;
+	}
 	span.line-break {
 		background: #444;
 		color: #fff;
@@ -72,12 +77,25 @@
 	var fieldEcho;
 	var divOutput;
 
-	function outputLine(text, color) {
+	function outputLine(text, color, options) {
 		var div = document.createElement('div');
 		div.className = 'output';
 		div.innerHTML = text;
 		if (color) {
 			div.style.color = color;
+		}
+		if (options) {
+			if (options.is_proxied) {
+				var prxdiv = document.createElement('div');
+				prxdiv.className = 'proxied';
+				prxdiv.innerHTML = 'proxied';
+
+				if (options.proxy_name) {
+					prxdiv.innerHTML += ' ' + options.proxy_name;
+				}
+
+				div.appendChild(prxdiv);
+			}
 		}
 		divOutput.insertBefore(div, divOutput.childNodes[0]);
 	}
@@ -92,7 +110,6 @@
 
 		socket.onmessage = function(message) {
 			data = JSON.parse(message.data);
-			
 
 			if (data.op === 'recvd') {
 				var host = data.from[0];
@@ -109,7 +126,7 @@
 				} else {
 					outData = data.data;
 				}
-				outputLine('['+host+':'+port+'/'+originalPort+'] ' + outData);
+				outputLine('['+host+':'+port+'/'+originalPort+'] ' + outData, null, data);
 			} else if (data.op === 'success') {
 				outputLine(data.message, '#99ff99');
 			} else if (data.op === 'error') {
