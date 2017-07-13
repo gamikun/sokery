@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## Version 0.1.9 (July 12th, 2017)
+* Implemented proxy packages reception.
+
 ## Version 0.1.8 (July 6th, 2017)
 * New preloaded ports from args (eg. -l 3123,9123).
 
