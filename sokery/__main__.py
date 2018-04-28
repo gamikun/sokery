@@ -1,6 +1,6 @@
 from __future__ import absolute_import
 from argparse import ArgumentParser
-from sokery.utils import portlist
+from sokery.utils.types import portlist
 from sokery.loop import start_loop
 
 parser = ArgumentParser()
