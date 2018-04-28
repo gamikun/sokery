@@ -3,9 +3,15 @@ import socket
 import json
 from datetime import datetime
 from tcp import TCPServer
+import logging
+import os
 
 
 class Application(tornado.web.Application):
+
+    def __init__(self, *args, **kwargs):
+        super(Application, self).__init__(*args, **kwargs)
+        self.servers = {}
 
     @property
     def report_clients(self):
@@ -33,12 +39,20 @@ class Application(tornado.web.Application):
             server.report_clients = self.report_clients
             server.listen(port)
 
+            self.servers[port] = server
+
             if options:
                 server.echo_all = bool(options.get('echo_all', None))
-                print("echo all: {}".format(server.echo_all))
+                logging.info("echo all: {}".format(server.echo_all))
 
             self.report('success',
                 msg='listening in port {}'.format(port)
+            )
+            self.report('new-server',
+                msg={
+                    'port': port,
+                    'server_id': server.uuid
+                }
             )
 
         except socket.error as ex:
@@ -59,11 +73,13 @@ class Application(tornado.web.Application):
         except Exception as ex:
             self.report('error', msg=str(ex))
 
-    def close_port(port):
-        pass
+    def close_port(self, port):
+        self.servers[port].stop()
+        del self.servers[port]
+        self.report('stopped-server', msg={'port': port})
 
     def report(self, op, msg='error'):
-        print("{}: {}".format(op, msg))
+        logging.info("{}: {}".format(op, msg))
         for client in self.report_clients:
             client.write_message(json.dumps({
                 'op': op,

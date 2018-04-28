@@ -1,9 +1,5 @@
-# CHANGELOG
-
-## Version 0.2.0 (April 28th, 2018)
-* Added a list of open ports and a button to stop.
-* Angular implemented for interface (partially for now).
-* New way to run sokery: sokery run
+## Version 0.2.0 (March 1st, 2018)
+* Binary implemented, so you can now run directly
 
 ## Version 0.1.9 (July 12th, 2017)
 * Implemented proxy packages reception.

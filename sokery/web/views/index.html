@@ -1,165 +1,222 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Sokery test</title>
+    <title>Sokery test</title>
 </head>
 <style type="text/css">
-	body {
-		padding: 0;
-		margin: 0;
-		font-family: "Courier New";
-		font-size: 14px;
-		background: #222;
-		color: #c0c0c0;
-	}
-	input[type=text] {
-		padding: 5px;
-		background: #222;
-		border: solid 1px #555;
-		color: #eee;
-	}
-	button {
-		background: #99cc00;
-		border: none;
-		font-size: 14px;
-	}
-	#panel {
-		padding: 10px;
-		position: fixed;
-		top: 0;
-		height: 50px;
-		background: #333;
-		width: 100%;
-	}
-	#output {
-		margin-top: 70px;
-	}
-	.output {
-		padding: 4px 10px;
-	}
-	.output:nth-child(odd) {
-		background: #151515;
-	}
-	.output .proxied {
-		float: right;
-		color: #777;
-		font-size: 10px;
-	}
-	span.line-break {
-		background: #444;
-		color: #fff;
-		padding: 0 4px;
-		margin: 0 3px;
-		border-radius: 1px;
-		font-weight: bold;
-	}
+    body {
+        padding: 0;
+        margin: 0;
+        font-family: "Courier New";
+        font-size: 14px;
+        background: #222;
+        color: #c0c0c0;
+    }
+    input[type=text] {
+        padding: 5px;
+        background: #222;
+        border: solid 1px #555;
+        color: #eee;
+    }
+    button {
+        background: #99cc00;
+        border: none;
+        font-size: 14px;
+    }
+    #panel {
+        padding: 10px;
+        position: fixed;
+        top: 0;
+        height: 50px;
+        background: #333;
+        width: 100%;
+    }
+    #servers {
+        position: fixed;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        width: 200px;
+        background: #444;
+    }
+    #output {
+        margin-top: 70px;
+    }
+    .output {
+        padding: 4px 10px;
+    }
+    .output:nth-child(odd) {
+        background: #151515;
+    }
+    .output .proxied {
+        float: right;
+        color: #777;
+        font-size: 10px;
+    }
+    span.line-break {
+        background: #444;
+        color: #fff;
+        padding: 0 4px;
+        margin: 0 3px;
+        border-radius: 1px;
+        font-weight: bold;
+    }
+    .server {
+        padding: 5px 10px;
+    }
+    .server .port {
+        font-size: 25px;
+    }
+    .server .stop {
+        float: right;
+    }
 </style>
-<body>
-	
-<div id="panel">
-	<div>Puerto</div>
-	<input type="text" value="" id="port">
-	<label>
-		<input type="checkbox" id="echo" value="1">
-		Eco a todo
-	</label>
+<body ng-app="App" ng-controller="Main">
 
-	<button type="button" id="listen">Listen</button>
+<div id="panel">
+    <div ng-click="ayNo = 'Yeah'">Puerto</div>
+    <input type="text" value="" id="port" ng-model="newPort">
+    <label>
+        <input type="checkbox" id="echo" value="1">
+        Eco a todo
+    </label>
+
+    <button type="button" ng-click="listen()">Listen</button>
 </div>
 
 <div id="output">
 </div>
 
+<div id="servers">
+    <div class="server" ng-repeat="server in servers">
+        <button type="button" class="stop" ng-click="unlisten(server.port)">X</button>
+        <div class="port">{{ server.port }}</div>
+    </div>
+</div>
+
 <script>
-	var socket;
-	var buttonListen;
-	var fieldPort;
-	var fieldEcho;
-	var divOutput;
+    var socket;
+    var fieldPort;
+    var fieldEcho;
+    var divOutput;
 
-	function outputLine(text, color, options) {
-		var div = document.createElement('div');
-		div.className = 'output';
-		div.innerHTML = text;
-		if (color) {
-			div.style.color = color;
-		}
-		if (options) {
-			if (options.is_proxied) {
-				var prxdiv = document.createElement('div');
-				prxdiv.className = 'proxied';
-				prxdiv.innerHTML = 'proxied';
+    function outputLine(text, color, options) {
+        var div = document.createElement('div');
+        div.className = 'output';
+        div.innerHTML = text;
+        if (color) {
+            div.style.color = color;
+        }
+        if (options) {
+            if (options.is_proxied) {
+                var prxdiv = document.createElement('div');
+                prxdiv.className = 'proxied';
+                prxdiv.innerHTML = 'proxied';
 
-				if (options.proxy_name) {
-					prxdiv.innerHTML += ' ' + options.proxy_name;
-				}
+                if (options.proxy_name) {
+                    prxdiv.innerHTML += ' ' + options.proxy_name;
+                }
 
-				div.appendChild(prxdiv);
-			}
-		}
-		divOutput.insertBefore(div, divOutput.childNodes[0]);
-	}
+                div.appendChild(prxdiv);
+            }
+        }
+        divOutput.insertBefore(div, divOutput.childNodes[0]);
+    }
 
-	window.onload = function() {
-		buttonListen = document.getElementById('listen');
-		fieldPort = document.getElementById('port');
-		divOutput = document.getElementById('output');
-		fieldEcho = document.getElementById('echo');
-
-		socket = new WebSocket('ws://' + location.host + '/live');
-
-		socket.onmessage = function(message) {
-			data = JSON.parse(message.data);
-
-			if (data.op === 'recvd') {
-				var host = data.from[0];
-				var port = data.from[1];
-				var originalPort = data.from[2];
-				var outData;
-				var lastChar = data.data.substring(0, data.data.length - 1);
-
-				if (data.data.indexOf('\n') != -1) {
-					outData = data.data.replace(
-						/\n/g,
-						'<span class="line-break">\\n</span>'
-					);
-				} else {
-					outData = data.data;
-				}
-				outputLine('['+host+':'+port+'/'+originalPort+'] ' + outData, null, data);
-			} else if (data.op === 'success') {
-				outputLine(data.message, '#99ff99');
-			} else if (data.op === 'error') {
-				outputLine(data.message, '#ff9999');
-			} else if (data.op === 'newclient') {
-				var host = data.from[0];
-				var port = data.from[1];
-				var originalPort = data.from[2];
-				outputLine('['+host+':'+port+'/'+originalPort+'] connected',
-						   '#9999ff');
-			} else if (data.op === 'connection_closed') {
-				var host = data.from[0];
-				var port = data.from[1];
-				var originalPort = data.from[2];
-				outputLine('['+host+':'+port+'/'+originalPort+'] connection closed',
-						   '#ffee99');
-			}
-			console.log(data);
-		}
-
-		buttonListen.onclick = function() {
-			if (socket) {
-				socket.send(JSON.stringify({
-					op: 'listen',
-					port: parseInt(fieldPort.value),
-					options: {
-						echo_all: fieldEcho.checked
-					}
-				}))
-			}
-		};
-	}
+    window.onload = function() {
+        fieldPort = document.getElementById('port');
+        divOutput = document.getElementById('output');
+        fieldEcho = document.getElementById('echo');
+    }
 </script>
+<script src="ng.js"></script>
+<script>
 
+var app = angular.module('App', [])
+
+app.controller('Main', function($scope) {
+    $scope.servers = [];
+
+    socket = new WebSocket('ws://' + location.host + '/live');
+
+    $scope.unlisten = function(port) {
+        if (socket) {
+            var data = {
+                op: 'unlisten',
+                port: parseInt(port),
+            };
+            var serialized = JSON.stringify(data);
+            socket.send(serialized);
+        }
+    }
+
+    socket.onmessage = function(message) {
+        data = JSON.parse(message.data);
+
+        if (data.op === 'recvd') {
+            var host = data.from[0];
+            var port = data.from[1];
+            var originalPort = data.from[2];
+            var outData;
+            var lastChar = data.data.substring(0, data.data.length - 1);
+
+            if (data.data.indexOf('\n') != -1) {
+                outData = data.data.replace(
+                    /\n/g,
+                    '<span class="line-break">\\n</span>'
+                );
+            } else {
+                outData = data.data;
+            }
+            outputLine('['+host+':'+port+'/'+originalPort+'] ' + outData, null, data);
+        } else if (data.op === 'success') {
+            outputLine(data.message, '#99ff99');
+        } else if (data.op === 'error') {
+            outputLine(data.message, '#ff9999');
+        } else if (data.op === 'newclient') {
+            var host = data.from[0];
+            var port = data.from[1];
+            var originalPort = data.from[2];
+            outputLine('['+host+':'+port+'/'+originalPort+'] connected',
+                       '#9999ff');
+        } else if (data.op === 'new-server') {
+            $scope.servers.push(data.message);
+            $scope.$apply();
+        } else if (data.op === 'stopped-server') {
+            $scope.servers.forEach(function(server, index) {
+                var port = server.port;
+                if (port === data.message.port) {
+                    $scope.servers.splice(index, 1);
+                    $scope.$apply();
+                    outputLine('tcp port ' + port.toString() + ' closed');
+                    return
+                }
+            })
+        } else if (data.op === 'connection_closed') {
+            var host = data.from[0];
+            var port = data.from[1];
+            var originalPort = data.from[2];
+            outputLine('['+host+':'+port+'/'+originalPort+'] connection closed',
+                       '#ffee99');
+        } else if (data.op === 'list-servers') {
+
+        }
+        console.log(data);
+    }
+
+    $scope.listen = function() {
+        if (socket) {
+            socket.send(JSON.stringify({
+                op: 'listen',
+                port: parseInt(fieldPort.value),
+                options: {
+                    echo_all: fieldEcho.checked
+                }
+            }))
+        }
+    };
+})
+
+</script>
 </body>
 </html>

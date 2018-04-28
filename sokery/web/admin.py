@@ -10,6 +10,15 @@ class LiveHandler(WebSocketHandler):
     def open(self):
         clients = self.settings['report_clients']
         clients.append(self)
+        self.write_message(json.dumps({
+            'op': 'list-servers',
+            'msg': {
+                'servers': [
+                    {'port': port} \
+                    for port in self.application.servers
+                ]
+            }
+        }))
 
     def on_close(self):
         clients = self.settings['report_clients']

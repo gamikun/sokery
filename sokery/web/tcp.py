@@ -2,6 +2,8 @@ import json
 import tornado.gen
 import tornado.tcpserver
 from tornado.iostream import StreamClosedError
+from binascii import hexlify
+import os
 
 
 class TCPServer(tornado.tcpserver.TCPServer):
@@ -9,6 +11,7 @@ class TCPServer(tornado.tcpserver.TCPServer):
     def __init__(self, *args, **kwargs):
         super(TCPServer, self).__init__(*args, **kwargs)
         self.report_clients = None
+        self.uuid = hexlify(os.urandom(8))
 
     def listen(self, port):
         self.port = port
