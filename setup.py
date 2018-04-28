@@ -7,7 +7,7 @@ binpath = os.path.join(basepath, 'bin')
 
 setup(
   name = 'sokery',
-  packages = ['sokery', 'sokery.web'],  
+  packages = ['sokery', 'sokery.web', 'sokery.utils'],  
   long_description=open('README.md').read(),
   version = sokery.__version__,
   description = 'Socket testing with web interface',
