@@ -2,6 +2,9 @@ from setuptools import setup
 import sokery
 import os
 
+basepath = os.path.dirname(__file__)
+binpath = os.path.join(basepath, 'bin')
+
 setup(
   name = 'sokery',
   packages = ['sokery', 'sokery.web'],  
