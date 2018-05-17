@@ -1,8 +1,10 @@
+from __future__ import absolute_import
 import tornado.web
 import socket
 import json
 from datetime import datetime
-from tcp import TCPServer
+from sokery.web.tcp import TCPServer
+from sokery.utils.types import portrange
 import logging
 import os
 
@@ -35,6 +37,9 @@ class Application(tornado.web.Application):
         """ Opens a port and adds it to the stack """
 
         try:
+            if not self.is_port_allowed(port):
+                raise Exception('not allowed port')
+            
             server = TCPServer()
             server.report_clients = self.report_clients
             server.listen(port)
@@ -43,6 +48,7 @@ class Application(tornado.web.Application):
 
             if options:
                 server.echo_all = bool(options.get('echo_all', None))
+                server.is_hex_digest = bool(options.get('is_binary', None))
                 logging.info("echo all: {}".format(server.echo_all))
 
             self.report('success',
@@ -51,7 +57,8 @@ class Application(tornado.web.Application):
             self.report('new-server',
                 msg={
                     'port': port,
-                    'server_id': server.uuid
+                    'server_id': server.uuid,
+                    'is_hex_digest': server.is_hex_digest,
                 }
             )
 
@@ -72,6 +79,23 @@ class Application(tornado.web.Application):
 
         except Exception as ex:
             self.report('error', msg=str(ex))
+
+    def is_port_allowed(self, port):
+        allow_map = self.settings['allowed_ports']
+        
+        if not allow_map:
+            return True
+
+        for item in allow_map:
+            if isinstance(item, int):
+                if item == port:
+                    return True
+            elif isinstance(item, tuple):
+                low, high = item
+                if port >= low and port <= high:
+                    return True
+
+        return False
 
     def close_port(self, port):
         self.servers[port].stop()

@@ -1,3 +1,13 @@
+## Version 0.3.0 (May 17th, 2018)
+* You can specify a list of ports that can be open with arg "-l".
+* Hex digest option available at the moment of server listening.
+* Added compatiblity with Python 3.
+
+## Version 0.2.0 (April 28th, 2018)
+* Added a list of open ports and a button to stop.
+* Angular implemented for interface (partially for now).
+* New way to run sokery: sokery run.
+
 ## Version 0.2.0 (March 1st, 2018)
 * Binary implemented, so you can now run directly
 

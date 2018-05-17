@@ -22,8 +22,10 @@ urlmap = [
 	(r'/(.*)$', StaticFileHandler, {'path': indexpath}),
 ]
 
-def start_loop(port=4991, listen_to=None, proxy_http=False):
+def start_loop(port=4991, listen_to=None, proxy_http=False,
+			   allowed_ports=None):
 	logging.info('starting in port {}'.format(port))
+	logging.info('allowed_ports {}'.format(allowed_ports))
 	if proxy_http:
 		urlmap.append((r'/proxy', ProxyRequestHandler))
 
@@ -31,6 +33,7 @@ def start_loop(port=4991, listen_to=None, proxy_http=False):
 		report_clients=[],
 		listen_to=listen_to,
 		proxy_http=proxy_http,
+		allowed_ports=allowed_ports,
 		)
 	app.listen(port)
 	loop = IOLoop.current()

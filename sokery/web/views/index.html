@@ -78,7 +78,11 @@
     <input type="text" value="" id="port" ng-model="newPort">
     <label>
         <input type="checkbox" id="echo" value="1">
-        Eco a todo
+        Echo
+    </label>
+    <label>
+        <input type="checkbox" id="is_binary" value="1" checked>
+        Hex digest
     </label>
 
     <button type="button" ng-click="listen()">Listen</button>
@@ -98,10 +102,27 @@
     var socket;
     var fieldPort;
     var fieldEcho;
+    var fieldIsBinary;
     var divOutput;
 
+    Array.prototype.serverByPort = function(port) {
+        for (var index = 0; index < this.length; index++) {
+            if (this[index].port === port) {
+                return this[index];
+            }
+        }
+    }
+
+    function byid(id) {
+        return document.getElementById(id);
+    }
+
+    function elem(e) {
+        return document.createElement(e);
+    }
+
     function outputLine(text, color, options) {
-        var div = document.createElement('div');
+        var div = elem('div');
         div.className = 'output';
         div.innerHTML = text;
         if (color) {
@@ -109,7 +130,7 @@
         }
         if (options) {
             if (options.is_proxied) {
-                var prxdiv = document.createElement('div');
+                var prxdiv = elem('div');
                 prxdiv.className = 'proxied';
                 prxdiv.innerHTML = 'proxied';
 
@@ -124,9 +145,10 @@
     }
 
     window.onload = function() {
-        fieldPort = document.getElementById('port');
-        divOutput = document.getElementById('output');
-        fieldEcho = document.getElementById('echo');
+        fieldPort = byid('port');
+        divOutput = byid('output');
+        fieldEcho = byid('echo');
+        fieldIsBinary = byid('is_binary');
     }
 </script>
 <script src="ng.js"></script>
@@ -159,8 +181,11 @@ app.controller('Main', function($scope) {
             var originalPort = data.from[2];
             var outData;
             var lastChar = data.data.substring(0, data.data.length - 1);
-
-            if (data.data.indexOf('\n') != -1) {
+            
+            if (data.is_hex_digest) {
+                outData = '<span class="line-break">HEX</span>'
+                        + data.data;
+            } else if (data.data.indexOf('\n') != -1) {
                 outData = data.data.replace(
                     /\n/g,
                     '<span class="line-break">\\n</span>'
@@ -210,7 +235,8 @@ app.controller('Main', function($scope) {
                 op: 'listen',
                 port: parseInt(fieldPort.value),
                 options: {
-                    echo_all: fieldEcho.checked
+                    echo_all: fieldEcho.checked,
+                    is_binary: fieldIsBinary.checked
                 }
             }))
         }

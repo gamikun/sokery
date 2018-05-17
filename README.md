@@ -1,28 +1,25 @@
-# CHANGELOG
+# Running the service
 
-## Version 0.1.9 (July 12th, 2017)
-* Implemented proxy packages reception.
+## Simplest way
 
-## Version 0.1.8 (July 6th, 2017)
-* New preloaded ports from args (eg. -l 3123,9123).
+    sokery run
+    # or
+    python -m sokery run
 
-## Version 0.1.6 (July 6th, 2017)
-* Line breaks are highlighted in packaged received.
-* Admin error are propagated to every report client.
-* New flag for the client test, which indicates that a break line will be added after the payload. (--br).
+Once the service is running, you can access the interface by the common url:
 
-## Version 0.1.5 (June 23th 2017)
-* New built and standallone sender client. (python -m sokery.client)
-* Dark interface.
-* Nicer coloring for texts.
-* Added origin to packages received.
+    http://localhost:4991
 
-## Version 0.1.3 (June 12th 2017)
-* New option for echoing everything received.
+## Limiting the ports that can be used
 
-## Version 0.1.3
-* Added response messages for errors and success port opening.
+    sokery run -a 1500-1600,35101
+    # You can use ranges and alone ports
 
-## Version 0.1.2
-* Autoimplemented module, running in port 4991.
-* Fixed index.html access.
+## Pre-running ports
+
+    sokery run -l 35100,35101
+
+# Dependencies
+
+* tornado
+* requests

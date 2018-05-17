@@ -1,8 +1,9 @@
+from __future__ import absolute_import
 import os
 import json
 from tornado.web import RequestHandler, StaticFileHandler
 from tornado.websocket import WebSocketHandler
-from tcp import TCPServer
+from sokery.web.tcp import TCPServer
 
 
 class LiveHandler(WebSocketHandler):
