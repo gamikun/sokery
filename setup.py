@@ -8,7 +8,7 @@ binpath = os.path.join(basepath, 'bin')
 setup(
   name = 'sokery',
   packages = ['sokery', 'sokery.web', 'sokery.utils'],  
-  long_description=open(os.path.join(basepath, 'README.md')).read(),
+  long_description=open(os.path.join(basepath, 'README.txt')).read(),
   version = sokery.__version__,
   description = 'Socket testing with web interface',
   install_requires=['tornado'],
