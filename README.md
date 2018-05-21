@@ -1,3 +1,15 @@
+# Install
+
+## From pip
+    
+    pip install 
+
+## With source code
+
+Firs you need to clone the repository (from cli/terminal, sourcetree, and so on). Then go into the folder and run this command.
+
+    python setup.py install
+
 # Running the service
 
 ## Simplest way
